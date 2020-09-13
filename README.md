@@ -1,6 +1,9 @@
 # Weather
 A universal weather nuget package
 
+##Builds
+[![CI Build status](https://dynamensions.visualstudio.com/Open%20Source/_apis/build/status/Weather%20CI%20Pipline)](https://dynamensions.visualstudio.com/Open%20Source/_build/latest?definitionId=28)
+
 ## Overview
 This will start with NOAA's weather stations, but will expand to other weather stations and will eventually become atronomical for stargazers.
 
