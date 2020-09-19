@@ -13,3 +13,7 @@ National Oceanic and Atmospheric Administration one of North America's top weath
 - Volcano Alerts
 - Hurricane Tracking
 - Tornado Tracking
+
+
+## Project Structure
+We will attempt to structure this in OOP, and not an SOA paradigm. Each weather *service* will have it's own container.
