@@ -33,10 +33,10 @@ Public NotInheritable Class NoaaWeatherService
 
 
 
-    Public Async Function GetLatitudeLongitudeByZipCode(zipCode As String) As Task(Of ServiceResponse(Of LatitudeLongitude))
+    Public Async Function GetLatitudeLongitudeByZipCode(zipCode As String) As Task(Of ServiceResponse(Of ZipCodeLatitudeLongitude))
 
         Dim reason As String = String.Empty
-        Dim result As New LatitudeLongitude
+        Dim latidude, longitude As Double
 
         Using client As HttpClient = CreateHttpClient()
             Dim response As HttpResponseMessage = Await client.GetAsync($"?listZipCodeList={zipCode}")
@@ -53,17 +53,54 @@ Public NotInheritable Class NoaaWeatherService
                     ' dissect the zipcode (it will have one comma)
                     Dim parts() As String = latlongList.Split(","c)
 
-                    Dim latidude, longitude As Double
                     Double.TryParse(parts(0), latidude)
                     Double.TryParse(parts(1), longitude)
 
-                    result = New LatitudeLongitude(latidude, longitude)
+
                 End If
             End If
         End Using
 
-        Return New ServiceResponse(Of LatitudeLongitude)(result, reason)
+        Return New ServiceResponse(Of ZipCodeLatitudeLongitude)(New ZipCodeLatitudeLongitude(zipCode, latidude, longitude), reason)
     End Function
+
+
+    Public Async Function GetLatitudeLongitudeByZipCodes(zipCodes As IEnumerable(Of String)) As Task(Of ServiceResponse(Of IEnumerable(Of ZipCodeLatitudeLongitude)))
+
+        Dim reason As String = String.Empty
+        Dim result As New List(Of ZipCodeLatitudeLongitude)
+
+        Using client As HttpClient = CreateHttpClient()
+            Dim response As HttpResponseMessage = Await client.GetAsync($"?listZipCodeList={String.Join("+", zipCodes)}")
+            If Not response.IsSuccessStatusCode Then
+                reason = response.ReasonPhrase
+            Else
+                ' read the response
+                Dim document As XDocument = XDocument.Parse(Await response.Content.ReadAsStringAsync())
+                ' parse the string
+                Dim latlongList As String = document.Root.<latLonList>.Value
+                If String.IsNullOrWhiteSpace(latlongList) Then
+                    reason = "Result was empty"
+                Else
+                    'dissect zip code groups
+                    Dim latLongGroups() As String = latlongList.Split(" "c)
+                    For index = 0 To latLongGroups.Length - 1
+                        ' dissect the zipcode (it will have one comma)
+                        Dim parts() As String = latLongGroups(index).Split(","c)
+
+                        Dim latidude, longitude As Double
+                        Double.TryParse(parts(0), latidude)
+                        Double.TryParse(parts(1), longitude)
+
+                        result.Add(New ZipCodeLatitudeLongitude(zipCodes(index), latidude, longitude))
+                    Next
+                End If
+            End If
+        End Using
+
+        Return New ServiceResponse(Of IEnumerable(Of ZipCodeLatitudeLongitude))(result, reason)
+    End Function
+
 
 #End Region
 

@@ -2,7 +2,7 @@
 ''' <summary>
 ''' The latitude or longitude for a point on 
 ''' </summary>
-Public Structure LatitudeLongitude
+Public Class LatitudeLongitude
 
 
     Public ReadOnly Property Latitude As Double
@@ -14,4 +14,4 @@ Public Structure LatitudeLongitude
         Me.Longitude = longitude
     End Sub
 
-End Structure
+End Class
